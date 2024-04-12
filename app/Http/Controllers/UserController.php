@@ -30,7 +30,7 @@ class UserController extends Controller
             'email' => 'required|email',
             'password' => 'required'
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'please fix the errors',
@@ -38,20 +38,30 @@ class UserController extends Controller
                 'status' => false,
             ], 200);
         }
-
+    
+        // Check if the user already exists
+        $existingUser = User::where('email', $request->email)->first();
+    
+        if ($existingUser) {
+            return response()->json([
+                'message' => 'User already exists',
+                'data' => $existingUser,
+                'status' => false
+            ], 200);
+        }
+    
+        // Create a new user if they don't exist
         $user = new User();
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = $request->password;
         $user->save();
-
         return response()->json([
             'message' => 'data inserted',
             'data' => $user,
             'status' => true
         ], 200);
     }
-
     //find single user
 
     public function show($id)
